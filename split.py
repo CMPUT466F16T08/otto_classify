@@ -6,15 +6,18 @@ import numpy as np
 
 
 X = pd.read_csv('train.csv')
-X = X.drop('id', axis=1)
+#X = X.drop('id', axis=1)
 
 y = X.target.values
 y = LabelEncoder().fit_transform(y)
 
-X = X.drop('target', axis=1)
-Xtrain, Xtest, ytrain, ytest = train_test_split(X, y, test_size=0.20)
+#X = X.drop('target', axis=1)
+Xtrain, Xtest, ytrain, ytest = train_test_split(X, y, test_size=0.20, random_state=36)
 
-np.save('Xtrain',Xtrain)
-np.save('Xtest',Xtest)
-np.save('ytrain',ytrain)
-np.save('ytest',ytest)
+X
+
+Xtrain['target']=ytrain
+Xtest['target']=ytest
+
+Xtrain.to_csv('train_set.csv',index=False)
+Xtest.to_csv('test_set.csv',index=False)
