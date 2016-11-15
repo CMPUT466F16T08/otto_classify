@@ -43,7 +43,7 @@ for i in range(len(clf_predict)):
     if clf_predict[i]==ytest[i]:
         correct += 1
 
-y_pred= clf.predict_proba(Xtest)
+y_pred= clf_fit.predict_proba(Xtest)
 loglossResult=log_loss(ytest,y_pred)
         
 
@@ -55,4 +55,6 @@ print '\nThe log loss = ' + str(loglossResult)
 print 'Xtest is : ', Xtest
 print 'y is : ', y
 print 'yTest is : ', ytest
-print 'y_pred is: ', y_pred'''
+print 'y_pred is: ', y_pred
+print 'clf is: ', clf
+print 'clf_fit is: ', clf_fit '''
