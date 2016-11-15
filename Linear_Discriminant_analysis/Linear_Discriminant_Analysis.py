@@ -3,6 +3,7 @@ import numpy as np
 from sklearn.cross_validation import train_test_split
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import log_loss
 
 '''x = pd.read_csv('../train_set.csv')
 x=x.values
@@ -41,7 +42,17 @@ correct=0
 for i in range(len(clf_predict)):
     if clf_predict[i]==ytest[i]:
         correct += 1
+
+y_pred= clf.predict_proba(Xtest)
+loglossResult=log_loss(ytest,y_pred)
         
 
 
 print '\nAccuracy (with Linear_Discriminant_Analysis) = ' + str(float(correct)/len(clf_predict))
+
+print '\nThe log loss = ' + str(loglossResult)
+'''print 'x is : ', X
+print 'Xtest is : ', Xtest
+print 'y is : ', y
+print 'yTest is : ', ytest
+print 'y_pred is: ', y_pred'''
