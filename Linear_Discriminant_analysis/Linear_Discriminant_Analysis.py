@@ -34,10 +34,10 @@ Xtrain, Xtest, ytrain, ytest = train_test_split(X, y, test_size=0.20, random_sta
 
 def SingularValue_LDA():
     
-    LinearDiscriminantAnalysis(n_components=None, priors=None, shrinkage=None,
+    clf=LinearDiscriminantAnalysis(n_components=None, priors=None, shrinkage=None,
                   solver='svd', store_covariance=False, tol=0.0001)
     
-    clf = LinearDiscriminantAnalysis()
+    #clf = LinearDiscriminantAnalysis()
     clf_fit = clf.fit(X, y)
     clf_predict= clf_fit.predict(Xtest)
     
@@ -60,10 +60,10 @@ def SingularValue_LDA():
 #===================Least squares solution part=================
 def lsqr_LDA():
     
-    LinearDiscriminantAnalysis(n_components=None, priors=None, shrinkage=None,
+    clf=LinearDiscriminantAnalysis(n_components=None, priors=None, shrinkage=None,
                   solver='lsqr', store_covariance=False, tol=0.0001)
     
-    clf = LinearDiscriminantAnalysis()
+    #clf = LinearDiscriminantAnalysis()
     clf_fit = clf.fit(X, y)
     clf_predict= clf_fit.predict(Xtest)
     
@@ -85,10 +85,10 @@ def lsqr_LDA():
 #=======================Eigenvalue decomposition part================= 
 def eigen_LDA():
     
-    LinearDiscriminantAnalysis(n_components=None, priors=None, shrinkage=None,
+    clf=LinearDiscriminantAnalysis(n_components=None, priors=None, shrinkage=None,
                       solver='eigen', store_covariance=False, tol=0.0001)
         
-    clf = LinearDiscriminantAnalysis()
+    #clf = LinearDiscriminantAnalysis()
     clf_fit = clf.fit(X, y)
     clf_predict= clf_fit.predict(Xtest)
     
