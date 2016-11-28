@@ -1,0 +1,25 @@
+step 800, training accuracy 0.954102
+step 810, training accuracy 0.956543
+step 820, training accuracy 0.953857
+step 830, training accuracy 0.956299
+step 840, training accuracy 0.954346
+step 850, training accuracy 0.957764
+step 860, training accuracy 0.96167
+step 870, training accuracy 0.9646
+step 880, training accuracy 0.963623
+step 890, training accuracy 0.965576
+step 900, training accuracy 0.96582
+step 910, training accuracy 0.965088
+step 920, training accuracy 0.96582
+step 930, training accuracy 0.966064
+step 940, training accuracy 0.970215
+step 950, training accuracy 0.969971
+step 960, training accuracy 0.970459
+step 970, training accuracy 0.9729
+step 980, training accuracy 0.971436
+step 990, training accuracy 0.970459
+test accuracy 0.758727
+0.855550175651
+
+Kaggle
+ClariS	0.84437	-	Mon, 28 Nov 2016 17:06:39
