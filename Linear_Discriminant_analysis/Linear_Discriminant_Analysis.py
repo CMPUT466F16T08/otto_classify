@@ -13,6 +13,22 @@ y=np.zeros((x.shape[0],9))
 y[np.arange(x.shape[0]),ylabel]=1'''
 
 
+
+
+#Accuracy (with Singular value decomposition Linear_Discriminant_Analysis) = 0.704831932773
+
+#The Singular value decomposition log loss = 0.910064928191
+
+#Accuracy (with Least squares solution Linear_Discriminant_Analysis) = 0.704831932773
+
+#The Least squares solution log loss = 0.978570720651
+
+#Accuracy (with Eigenvalue decomposition Least squares solution Linear_Discriminant_Analysis) = 0.689964447317
+
+#The Eigenvalue decomposition log loss = 1.63984890391
+
+
+
 # read file, get training data
 X = pd.read_csv('../train.csv')
 
