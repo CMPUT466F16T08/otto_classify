@@ -30,27 +30,89 @@ X = X.drop('target', axis=1)
 # Reference: http://stackoverflow.com/questions/29438265/stratified-train-test-split-in-scikit-learn
 Xtrain, Xtest, ytrain, ytest = train_test_split(X, y, test_size=0.20, random_state=36)
 
+#===================Singular value decomposition part=================
 
-LinearDiscriminantAnalysis(n_components=None, priors=None, shrinkage=None,
-              solver='svd', store_covariance=False, tol=0.0001)
+def SingularValue_LDA():
+    
+    LinearDiscriminantAnalysis(n_components=None, priors=None, shrinkage=None,
+                  solver='svd', store_covariance=False, tol=0.0001)
+    
+    clf = LinearDiscriminantAnalysis()
+    clf_fit = clf.fit(X, y)
+    clf_predict= clf_fit.predict(Xtest)
+    
+    correct=0
+    for i in range(len(clf_predict)):
+        if clf_predict[i]==ytest[i]:
+            correct += 1
+    
+    y_pred= clf_fit.predict_proba(Xtest)
+    loglossResult=log_loss(ytest,y_pred)
+            
+    
+    
+    print '\nAccuracy (with Singular value decomposition Linear_Discriminant_Analysis) = ' + str(float(correct)/len(clf_predict))
+    
+    print '\nThe Singular value decomposition log loss = ' + str(loglossResult)
 
-clf = LinearDiscriminantAnalysis()
-clf_fit = clf.fit(X, y)
-clf_predict= clf_fit.predict(Xtest)
+#================================================================
 
-correct=0
-for i in range(len(clf_predict)):
-    if clf_predict[i]==ytest[i]:
-        correct += 1
-
-y_pred= clf_fit.predict_proba(Xtest)
-loglossResult=log_loss(ytest,y_pred)
+#===================Least squares solution part=================
+def lsqr_LDA():
+    
+    LinearDiscriminantAnalysis(n_components=None, priors=None, shrinkage=None,
+                  solver='lsqr', store_covariance=False, tol=0.0001)
+    
+    clf = LinearDiscriminantAnalysis()
+    clf_fit = clf.fit(X, y)
+    clf_predict= clf_fit.predict(Xtest)
+    
+    correct=0
+    for i in range(len(clf_predict)):
+        if clf_predict[i]==ytest[i]:
+            correct += 1
+    
+    y_pred= clf_fit.predict_proba(Xtest)
+    loglossResult=log_loss(ytest,y_pred)
+            
+    
+    
+    print '\nAccuracy (with Least squares solution Linear_Discriminant_Analysis) = ' + str(float(correct)/len(clf_predict))
+    
+    print '\nThe Least squares solution log loss = ' + str(loglossResult)
+   
+   
+#=======================Eigenvalue decomposition part================= 
+def eigen_LDA():
+    
+    LinearDiscriminantAnalysis(n_components=None, priors=None, shrinkage=None,
+                      solver='eigen', store_covariance=False, tol=0.0001)
         
+    clf = LinearDiscriminantAnalysis()
+    clf_fit = clf.fit(X, y)
+    clf_predict= clf_fit.predict(Xtest)
+    
+    correct=0
+    for i in range(len(clf_predict)):
+        if clf_predict[i]==ytest[i]:
+            correct += 1
+    
+    y_pred= clf_fit.predict_proba(Xtest)
+    loglossResult=log_loss(ytest,y_pred)
+            
+    
+    
+    print '\nAccuracy (with Eigenvalue decomposition Least squares solution Linear_Discriminant_Analysis) = ' + str(float(correct)/len(clf_predict))
+    
+    print '\nThe Eigenvalue decomposition log loss = ' + str(loglossResult)
+    
+    
+    
+SingularValue_LDA()
+lsqr_LDA()
+eigen_LDA()
 
-
-print '\nAccuracy (with Linear_Discriminant_Analysis) = ' + str(float(correct)/len(clf_predict))
-
-print '\nThe log loss = ' + str(loglossResult)
+    
 '''print 'x is : ', X
 print 'Xtest is : ', Xtest
 print 'y is : ', y
