@@ -26,8 +26,9 @@ class process:
     tx=pd.read_csv('../test_set.csv')
     tx=tx.values
     tylabel=tx[:,-1]
+    ids=tx[:,0]
     tx=tx[:,1:-1]
     ty=np.zeros((tx.shape[0],9))
     ty[np.arange(tx.shape[0]),tylabel]=1
-    testset=[tx,ty]
+    testset=[tx,ty,ids]
     return testset

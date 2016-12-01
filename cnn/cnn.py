@@ -67,6 +67,7 @@ correct_prediction = tf.equal(tf.argmax(y_conv,1), tf.argmax(y_,1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 init = tf.initialize_all_variables()
+saver = tf.train.Saver()
 sess = tf.Session()
 sess.run(init)
 for i in range(1000):
@@ -77,6 +78,9 @@ for i in range(1000):
     print("step %d, training accuracy %g"%(i, train_accuracy))
   sess.run(train_step,feed_dict={x: batch[0], y_: batch[1], keep_prob: 0.5})
 
+save_path = saver.save(sess, "./model.ckpt")
+print("Model saved in file: %s" % save_path)
+
 test=data.testset()
 print("test accuracy %g"%(sess.run(accuracy,feed_dict={
     x: test[0], y_: test[1], keep_prob: 1.0})))
@@ -84,9 +88,17 @@ print("test accuracy %g"%(sess.run(accuracy,feed_dict={
 result=sess.run(tf.nn.softmax(y_conv),feed_dict={
     x: test[0], y_: test[1], keep_prob: 1.0});
 
+rre=np.insert(result,0,test[2],axis=1)
+rre=pd.DataFrame(rre,columns=['id','Class_1','Class_2','Class_3','Class_4','Class_5','Class_6','Class_7','Class_8','Class_9'])
+rre.to_csv('graph.csv',index=False)
+
 result=np.maximum(np.minimum(result,1-10**(-15)),10**-15)
 print -1.0/result.shape[0]*np.sum(test[1]*np.log(result))
 
+
+
+#just for Kaggle evaluate
+quit()
 rx = pd.read_csv('../test.csv')
 rx=rx.values
 rid=rx[:,0]
