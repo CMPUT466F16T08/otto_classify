@@ -4,10 +4,10 @@ import sklearn
 import time
 import csv
 from math import log
-from sklearn.model_selection import cross_val_score
+#from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import LabelEncoder
 from sklearn.cross_validation import train_test_split
-from sklearn.ensemble import RandomForestClassifier, BaggingClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.metrics import log_loss
 # Reference: http://blog.csdn.net/zouxy09/article/details/48903179
@@ -116,15 +116,23 @@ def log_loss_implement(actual, predicted, eps = 1e-15):
 
 
 def write_pred_prob(probs):
+    id_f = open('test_set.csv', 'rb')
+    id_r = csv.reader(id_f)
+    ids = [row[0] for row in id_r]
+    ids = ids[1:]
+    id_f.close()
+    
     f = open('prob.csv', 'wb')
     writer = csv.writer(f)
-    labels = []
+    labels = ['id']
     for i in range(9):
-        labels.append('class '+str(i))
+        labels.append('Class_'+str(i+1))
     writer.writerow(labels)
     data = []
-    for l in probs:
-        data.append(l)
+    for l in range(len(probs)):
+        new = [ids[l]]
+        new += probs[l]
+        data.append(new)
     writer.writerows(data)
     f.close()
     print 'finish writting <prob.csv>'
