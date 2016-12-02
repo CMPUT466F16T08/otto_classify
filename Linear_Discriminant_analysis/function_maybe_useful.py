@@ -1,3 +1,18 @@
+import pandas as pd
+import numpy as np
+import sklearn
+import time
+import csv
+from math import log
+#from sklearn.model_selection import cross_val_score
+from sklearn.preprocessing import LabelEncoder
+from sklearn.cross_validation import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.calibration import CalibratedClassifierCV
+from sklearn.metrics import log_loss
+
+
+
 '''
 usage: write results of prediction into a csv file
 input: probs - probabilities for each class 
@@ -8,8 +23,7 @@ input: probs - probabilities for each class
 output: a csv file called prob.csv
 '''
 def write_pred_prob(probs):
-    
-    id_f = open('test_set.csv', 'rb')
+    id_f = open('../test_set.csv', 'rb')
     id_r = csv.reader(id_f)
     ids = [row[0] for row in id_r]
     ids = ids[1:]
@@ -23,8 +37,10 @@ def write_pred_prob(probs):
     writer.writerow(labels)
     data = []
     for l in range(len(probs)):
-        new = [ids[l]]
-	
+        new = ([ids[l]])
+        
+        print "\n new type is: ", type(new[0])
+        print "\n prob type is: ", type(probs[l][0])
         new += probs[l]
         data.append(new)
     writer.writerows(data)
