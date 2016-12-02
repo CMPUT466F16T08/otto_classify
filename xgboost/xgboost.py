@@ -39,9 +39,9 @@ Xt = Xt.drop('target', axis=1)
 Xtest = Xt
 ytest = yt
 
-lr = 0.7#learning_rate_list[0]
-md = 15#max_depth_list[0]
-ne = 500#n_estimators_list[i]
+lr = 0.6#learning_rate_list[0]
+md = 10#max_depth_list[0]
+ne = 200#n_estimators_list[i]
 gbm = GradientBoostingClassifier(learning_rate=lr, max_depth=md, n_estimators=ne)
 model = gbm.fit(Xtrain, ytrain)
 pred_prob = model.predict_proba(Xtest)
