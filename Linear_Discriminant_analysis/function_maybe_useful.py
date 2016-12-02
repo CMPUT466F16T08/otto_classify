@@ -23,6 +23,10 @@ input: probs - probabilities for each class
 output: a csv file called prob.csv
 '''
 def write_pred_prob(probs):
+    
+
+    #probs=probs.astype('|S32')
+    print'\n what: ',probs.dtype,probs
     id_f = open('../test_set.csv', 'rb')
     id_r = csv.reader(id_f)
     ids = [row[0] for row in id_r]
@@ -37,12 +41,14 @@ def write_pred_prob(probs):
     writer.writerow(labels)
     data = []
     for l in range(len(probs)):
-        new = ([ids[l]])
+        new = np.array([ids[l]], dtype='|S32')
         
-        print "\n new type is: ", type(new[0])
-        print "\n prob type is: ", type(probs[l][0])
-        new += probs[l]
-        data.append(new)
+        
+
+	probs[l]=probs[l].astype('|S32')
+        #merge = new + probs[l]
+        merge=np.append(new,probs[l])
+        data.append(merge)
     writer.writerows(data)
     f.close()
     print 'finish writting <prob.csv>'

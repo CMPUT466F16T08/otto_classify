@@ -6,6 +6,19 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import log_loss
 from sklearn.calibration import CalibratedClassifierCV
+import pandas as pd
+import numpy as np
+import sklearn
+import time
+import csv
+from math import log
+#from sklearn.model_selection import cross_val_score
+from sklearn.preprocessing import LabelEncoder
+from sklearn.cross_validation import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.calibration import CalibratedClassifierCV
+from sklearn.metrics import log_loss
+
 
 '''x = pd.read_csv('../train_set.csv')
 x=x.values
@@ -13,6 +26,7 @@ ylabel= x[:,-1]
 x=x[:,1:-1]
 y=np.zeros((x.shape[0],9))
 y[np.arange(x.shape[0]),ylabel]=1'''
+
 
 
 
@@ -85,14 +99,14 @@ def SingularValue_LDA():
     clf_fit_CV = clf_CV.fit(Xtrain, ytrain)
     
     #======================================
-    clf_predict= clf_fit_CV.predict_proba(Xtest)
+    #clf_predict= clf_fit_CV.predict_proba(Xtest)
     
     correct=0
     '''for i in range(len(clf_predict)):
         if clf_predict[i]==ytest[i]:
             correct += 1'''
     
-    #y_pred= clf_fit.predict_proba(Xtest)
+    
     #loglossResult=log_loss(ytest,y_pred)
 
     y_pred_CV= clf_fit_CV.predict_proba(Xtest)
@@ -102,19 +116,16 @@ def SingularValue_LDA():
             
     
     
-    print '\nAccuracy (with Singular value decomposition Linear_Discriminant_Analysis) = ' + str(float(correct)/len(clf_predict))
+    print '\nAccuracy (with Singular value decomposition Linear_Discriminant_Analysis) = ' + str(float(correct)/len(y_pred_CV))
     
     #print '\nThe Singular value decomposition log loss = ' + str(loglossResult)
 
     print '\nSingular value decomposition Logloss (with calibration using isotonic) = ' + str(loglossResult_withIsotonic) + ' compare:', str(loglossResult)
 
-    
-    
-    for i in range(len(y_pred_CV)):
-        for j in range(9):
-            y_pred_CV[i][j]=str(y_pred_CV[i][j])
 
-    print '\n instance is : ', y_pred_CV
+     
+    y_pred_CV.astype('|S32')
+    print '\n aaaaaa type: ', type(y_pred_CV[0][0])
     write_pred_prob(y_pred_CV)
     
 
