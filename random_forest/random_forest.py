@@ -188,13 +188,13 @@ forest = RandomForestClassifier(n_estimators=50, n_jobs=-1, max_features='sqrt',
 forestCal2 = CalibratedClassifierCV(forest, method='isotonic', cv=5)
 forestCal2 = forestCal2.fit(Xtrain, ytrain)
 predict_prob2 = forestCal2.predict_proba(Xtest) 
+print type(predict_prob2)
 
 prediction = predit_result(predict_prob2)
 #prediction_build_in = forestCal2.predict(Xtest)
 
 acc_class = class_accuracy(prediction, ytest)
 
-#logl_class = class_logloss(prediction, ytest, predict_prob2)
 logloss3 = log_loss(ytest, predict_prob2)
 logloss2, logloss_list = log_loss_implement(ytest, predict_prob2)
 
