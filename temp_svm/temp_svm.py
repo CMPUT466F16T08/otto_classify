@@ -10,6 +10,9 @@ from sklearn.metrics import log_loss
 from sklearn.grid_search import GridSearchCV
 '''
 C=2 gamma=0.001 logloss=0.564736804506
+C=2 gamma=0.002 logloss=0.54718710919
+
+
 '''
 
 def write_pred_prob(probs, C_, g):
