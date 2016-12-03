@@ -11,6 +11,10 @@ n_estimators = 100 learning_rate = 0.475 max_depth = 2 log loss = 0.583600418683
 n_estimators = 100 learning_rate = 0.48 max_depth = 2 log loss = 0.581117435124
 n_estimators = 100 learning_rate = 0.5 max_depth = 3 : log loss = 0.574187134015
 
+with bagging:
+n_estimators = 100 learning_rate = 0.5 max_depth = 3 log loss = 0.534818037693
+n_estimators = 100 learning_rate = 0.4 max_depth = 3 log loss = 0.530011997962
+
 '''
 #import xgboost
 import pandas as pd
@@ -20,7 +24,6 @@ import time
 import csv
 from math import log
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import GradientBoostingClassifier, BaggingClassifier
 from sklearn.metrics import log_loss
@@ -133,7 +136,7 @@ Xt = Xt.drop('target', axis=1)
 Xtest = Xt
 ytest = yt
 
-lr = 0.5#learning_rate_list[0]
+lr = 0.4#learning_rate_list[0]
 md = 3  #max_depth_list[0]
 ne = 100#n_estimators_list[i]
 gbm = GradientBoostingClassifier(learning_rate=lr, max_depth=md, n_estimators=ne)
