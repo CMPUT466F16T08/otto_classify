@@ -14,9 +14,10 @@ for i in range(0,l):
   col=pd.read_csv(filelist[i])
   col=col.values
   col=col[:,1:]
-  col=np.argmax(col,axis=1)
+  #colt=np.argmax(col,axis=1)
+  col=np.amax(col,axis=1)
   output[namelist[i]]=col
 output['true class']=tre
 
-output.to_csv('chart.csv',index=False)
+output.to_csv('chart_prob.csv',index=False)
 
