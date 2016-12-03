@@ -5,7 +5,7 @@
 import pandas as pd
 import numpy as np
 
-X = pd.read_csv('prediction_prob_random_forest.csv')	#file name
+X = pd.read_csv('prediction_prob_xgboost.csv')	#file name
 y = pd.read_csv('test_set.csv')
 
 X=X.values
