@@ -11,11 +11,11 @@ import matplotlib.pyplot as plt
 
 train = pd.read_csv('train_set.csv')
 
-train = train[0:5000][:]
+train = train[0:15000][:]
 
 train = train.drop('id', axis=1)
 y = train.target.values
-y = LabelEncoder().fit_transform(y)
+
 X = train.drop('target', axis=1)
 
 model = TSNE(n_components=2, random_state=0)
