@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
 
-filelist=['prediction_prob_cnn.csv','prediction_prob_LDA.csv','prediction_prob_nn.csv','prediction_prob_random_forest.csv','prediction_prob_svm.csv','prediction_prob_xgboost.csv']
-namelist=['CNN','LDA','NN','forest','SVM','xgboost']
+filelist=['prediction_prob_cnn.csv','prediction_prob_knn.csv','prediction_prob_LDA.csv','prediction_prob_nn.csv','prediction_prob_random_forest.csv','prediction_prob_svm.csv','prediction_prob_xgboost.csv']
+namelist=['CNN','KNN','LDA','NN','forest','SVM','xgboost']
 l=len(namelist)
 
 output=pd.read_csv('../test_set.csv')
