@@ -10,9 +10,8 @@ from sklearn.cross_validation import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.metrics import log_loss
-# Reference: http://blog.csdn.net/zouxy09/article/details/48903179
-#from sklearn.ensemble import GradientBoostingClassifier
-#from sklearn import metrics
+
+import matplotlib.pyplot as plt
 
 '''
 n_estimators=50:
@@ -158,15 +157,9 @@ X = X.drop('id', axis=1)
 # get target and encode
 y = X.target.values
 y = LabelEncoder().fit_transform(y)
-
 # remove target
 X = X.drop('target', axis=1)
 
-# split data
-# Reference: http://stackoverflow.com/questions/29438265/stratified-train-test-split-in-scikit-learn
-#Xtrain, Xtest, ytrain, ytest = train_test_split(X, y, test_size=0.20, random_state=36)
-Xtrain = X
-ytrain = y
 
 Xt = pd.read_csv('test_set.csv')
 
@@ -180,30 +173,70 @@ yt = LabelEncoder().fit_transform(yt)
 # remove target
 Xt = Xt.drop('target', axis=1)
 
+Xtrain = X
+ytrain = y
+
 Xtest = Xt
 ytest = yt
 
-forest = RandomForestClassifier(n_estimators=50, n_jobs=-1, max_features='sqrt', min_samples_leaf=1)
 
-forestCal2 = CalibratedClassifierCV(forest, method='isotonic', cv=5)
-forestCal2 = forestCal2.fit(Xtrain, ytrain)
-predict_prob2 = forestCal2.predict_proba(Xtest) 
-print type(predict_prob2)
 
-prediction = predit_result(predict_prob2)
-#prediction_build_in = forestCal2.predict(Xtest)
+'''
+Feature importance
+http://scikit-learn.org/stable/auto_examples/ensemble/plot_forest_importances.html
+'''
+forest = RandomForestClassifier(n_estimators=100, random_state=0)
+forest.fit(Xtrain, ytrain)
+importances = forest.feature_importances_
+std = np.std([tree.feature_importances_ for tree in forest.estimators_],
+             axis=0)
+indices = np.argsort(importances)[::-1]
 
-acc_class = class_accuracy(prediction, ytest)
+# Print the feature ranking
+print("Feature ranking:")
+print importances
+print '\n'
+for f in range(X.shape[1]):
+    print("%d. feature %d (%f)" % (f + 1, indices[f], importances[indices[f]]))
 
-logloss3 = log_loss(ytest, predict_prob2)
-logloss2, logloss_list = log_loss_implement(ytest, predict_prob2)
+'''
+# Plot the feature importances of the forest
+plt.figure()
+plt.title("Feature importances")
+plt.bar(range(X.shape[1]), importances[indices],
+       color="r", yerr=std[indices], align="center")
+plt.xticks(range(X.shape[1]), indices)
+plt.xlim([-1, X.shape[1]])
+plt.show()
+'''
+'''
+Calibration
+'''
+cla_imp = {}
+for i in range(len(importances)):
+    cla_imp[i+1] = importances[i]
+    
+cv_list = [2, 3, 4, 5, 6, 7, 8]
+for c in cv_list:
+    start = time.time()
+    forest = RandomForestClassifier(n_estimators=100, n_jobs=-1, max_features='sqrt', min_samples_leaf=1, class_weight='balanced')
+    forestCal2 = CalibratedClassifierCV(forest, method='isotonic', cv=c)
+    forestCal2 = forestCal2.fit(Xtrain, ytrain)
+    predict_prob2 = forestCal2.predict_proba(Xtest) 
+    end = time.time()
+    run_time = end - start
+    #prediction = predit_result(predict_prob2)
+    #acc_class = class_accuracy(prediction, ytest)
+    logloss = log_loss(ytest, predict_prob2)
+    logloss2, logloss_list = log_loss_implement(ytest, predict_prob2)
+    #accuracy = cal_accuracy(prediction, ytest)
+    print 'cv =', c
+    print '\nLogloss (with calibration using isotonic) = ' + str(logloss2) + ' compare:', str(logloss)
+    #print 'Accuracy (with calibration using isotonic) = ' + str(accuracy)
+    print 'time =', run_time
 
-accuracy = cal_accuracy(prediction, ytest)
-print '\nLogloss (with calibration using isotonic) = ' + str(logloss2) + ' compare:', str(logloss3)
-print 'Accuracy (with calibration using isotonic) = ' + str(accuracy)
-
-write_pred_prob(predict_prob2)
-write_pred_logloss(logloss_list)
+#write_pred_prob(predict_prob2)
+#write_pred_logloss(logloss_list)
 
 '''
 forestCal = CalibratedClassifierCV(forest, method='sigmoid', cv=5)
@@ -217,30 +250,6 @@ print '\nLogloss (with calibration using sigmoid) = ' + str(logloss)
 print 'Accuracy (with calibration using sigmoid) = ' + str(accuracy)
 #print 'score =', str(scores)
 '''
-
-'''
-forest2 = GradientBoostingClassifier(n_estimators=50)
-
-forestCal = forest2.fit(Xtrain, ytrain)
-predict_prob = forestCal.predict_proba(Xtest)
-logloss = log_loss(ytest, predict_prob)
-prediction = predit_result(predict_prob)
-accuracy = cal_accuracy(prediction, ytest)
-print '\nLogloss (gradient boosting) = ' + str(logloss)
-print 'Accuracy (gradient boosting) = ' + str(accuracy)
-
-
-forestCal = CalibratedClassifierCV(forest2, method='sigmoid', cv=5)
-forestCal = forestCal.fit(Xtrain, ytrain)
-predict_prob = forestCal.predict_proba(Xtest)
-logloss = log_loss(ytest, predict_prob)
-prediction = predit_result(predict_prob)
-accuracy = cal_accuracy(prediction, ytest)
-print '\nLogloss (gradient boosting) = ' + str(logloss)
-print 'Accuracy (gradient boosting) = ' + str(accuracy)
-'''
-
-
 
 '''
 Choosing parameter

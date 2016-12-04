@@ -122,8 +122,8 @@ Xtest = Xt
 ytest = yt
 
 Cs = [0.1, 0.5, 0.8, 1, 2]
-#kernels = ['poly', 'sigmoid']
-#degrees = [2,3,4]
+kernels = ['poly', 'sigmoid']
+degrees = [2,3,4]
 gammas = [0.0002, 0.0004, 0.001, 0.002, 0.01]
 '''
 # http://blog.csdn.net/bryan__/article/details/51506801
@@ -157,10 +157,11 @@ for i in range(len(Cs)):
     write_pred_prob(predict_prob, C_, g)
     write_pred_logloss(logloss_list, C_, g)
 '''    
-for j in range(len(gammas)):
-    C_ = 2
-    g = gammas[j]
-    model = svm.SVC(kernel='rbf', class_weight='balanced', C=C_, gamma=g, probability=True)
+for j in range(len(Cs)):
+    C_ = Cs[j]
+    g = 0.001
+    k = kernels[0]
+    model = svm.SVC(kernel=k, class_weight='balanced', C=C_, gamma=g, probability=True)
 
     model = model.fit(Xtrain, ytrain)
     
@@ -168,8 +169,8 @@ for j in range(len(gammas)):
     logloss3 = log_loss(ytest, predict_prob)
     logloss2, logloss_list = log_loss_implement(ytest, predict_prob)
     
-    print '=======C is', C_, ' gamma is', g, '======'
+    print '=======C is', C_, ' gamma is', g, 'kernel is', k,'======' 
     print 'logloss2 (implement) =', logloss2
     print 'logloss3 =', logloss3
-    write_pred_prob(predict_prob, C_, g)
-    write_pred_logloss(logloss_list, C_, g)    
+    write_pred_prob(predict_prob, C_, k)
+    write_pred_logloss(logloss_list, C_, k)    
