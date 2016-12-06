@@ -55,42 +55,44 @@ b_fc2 = bias_variable([9])
 
 y_conv = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
 
-reg_constant=0
-cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y_conv, y_))
-#+reg_constant*tf.nn.l2_loss(W_conv1)
-#+reg_constant*tf.nn.l2_loss(W_conv2)
-#+reg_constant*tf.nn.l2_loss(W_fc1)
-#+reg_constant*tf.nn.l2_loss(W_fc2)
-#)
-train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+reg_constant=0.01
+cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y_conv, y_)
++reg_constant*tf.nn.l2_loss(W_conv1)
++reg_constant*tf.nn.l2_loss(W_conv2)
++reg_constant*tf.nn.l2_loss(W_fc1)
++reg_constant*tf.nn.l2_loss(W_fc2)
+)
+train_step = tf.train.AdamOptimizer(5e-5).minimize(cross_entropy)
 correct_prediction = tf.equal(tf.argmax(y_conv,1), tf.argmax(y_,1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 init = tf.initialize_all_variables()
-saver = tf.train.Saver()
+#saver = tf.train.Saver()
 sess = tf.Session()
 sess.run(init)
-for i in range(1000):
-  batch = data.next_batch(4096)
+for i in range(200):
+  batch = data.next_batch(512)
   if i%10 == 0:
     train_accuracy = sess.run(accuracy,feed_dict={
         x:batch[0], y_: batch[1], keep_prob: 1.0})
     print("step %d, training accuracy %g"%(i, train_accuracy))
   sess.run(train_step,feed_dict={x: batch[0], y_: batch[1], keep_prob: 0.5})
 
-save_path = saver.save(sess, "./model.ckpt")
-print("Model saved in file: %s" % save_path)
+#save_path = saver.save(sess, "./model.ckpt")
+#print("Model saved in file: %s" % save_path)
 
 test=data.testset()
 print("test accuracy %g"%(sess.run(accuracy,feed_dict={
     x: test[0], y_: test[1], keep_prob: 1.0})))
+    
+#for graph
 
 result=sess.run(tf.nn.softmax(y_conv),feed_dict={
     x: test[0], y_: test[1], keep_prob: 1.0});
 
-rre=np.insert(result,0,test[2],axis=1)
-rre=pd.DataFrame(rre,columns=['id','Class_1','Class_2','Class_3','Class_4','Class_5','Class_6','Class_7','Class_8','Class_9'])
-rre.to_csv('graph.csv',index=False)
+#rre=np.insert(result,0,test[2],axis=1)
+#rre=pd.DataFrame(rre,columns=['id','Class_1','Class_2','Class_3','Class_4','Class_5','Class_6','Class_7','Class_8','Class_9'])
+#rre.to_csv('graph.csv',index=False)
 
 result=np.maximum(np.minimum(result,1-10**(-15)),10**-15)
 print -1.0/result.shape[0]*np.sum(test[1]*np.log(result))

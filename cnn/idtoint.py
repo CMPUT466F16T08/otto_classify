@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-rx = pd.read_csv('graph.csv')
+rx = pd.read_csv('result.csv')
 rx=rx.values
 rid=rx[:,0]
 
