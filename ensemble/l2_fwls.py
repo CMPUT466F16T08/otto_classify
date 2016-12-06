@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import pandas as pd
 import numpy as np
 import sklearn
@@ -13,27 +11,34 @@ from sklearn.cross_validation import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.metrics import log_loss
-from scipy.optimize import minimize
 
 '''
-Reference: http://mlwave.com/kaggle-ensembling-guide/
-    1.Split the training set into two disjoint sets.
-    2.Train several base learners on the first part.
-    3.Test the base learners on the second part.
-    4.Using the predictions from 3) as the inputs, and the correct responses as the outputs, train a higher level learner.
+RF: 
+    only deal with the highest probability, not use svm in test set
+    Class 0 log loss = 1.99367278161
+    Class 1 log loss = 1.21382153481
+    Class 2 log loss = 0.555585076175 ***
+    Class 3 log loss = 8.12407268906
+    Class 4 log loss = 0.339428380242
+    Class 5 log loss = 0.241941270692
+    Class 6 log loss = 1.70264027549
+    Class 7 log loss = 0.395128899931
+    Class 8 log loss = 0.664684844387
+    Logloss (with calibration using isotonic) = 1.06729834639
 '''
 '''
-    Class 0 log loss = 1.81006222877
-    Class 1 log loss = 0.500747771575
-    Class 2 log loss = 1.18498811702
-    Class 3 log loss = 1.94049107604
-    Class 4 log loss = 0.329764348788
-    Class 5 log loss = 0.285778343501
-    Class 6 log loss = 1.44070043069
-    Class 7 log loss = 0.404446699186
-    Class 8 log loss = 0.560933894566
-    
-    RF: Logloss (with calibration using isotonic) = 0.670662403093
+
+Class 0 log loss = 4.63578176929
+Class 1 log loss = 0.544965377405
+Class 2 log loss = 3.03881088369
+Class 3 log loss = 15.7513858174
+Class 4 log loss = 0.340182931615
+Class 5 log loss = 0.393712675862
+Class 6 log loss = 2.68731498249
+Class 7 log loss = 0.389444521871
+Class 8 log loss = 0.659284676578
+
+RF: Logloss (with calibration using isotonic) = 1.70978982541
 '''
 
 #from useful_functions import predit_result, cal_accuracy, class_accuracy, num_labels, log_loss_implement, write_pred_prob, write_pred_logloss, init_set, update_set
@@ -104,7 +109,7 @@ def log_loss_implement(actual, predicted, eps = 1e-15):
             temp = y*log(p)
             sum2 += temp
         cla_logloss = (-1)*sum2/float(count)
-        print 'Class', j, 'log loss =', cla_logloss
+        #print 'Class', j, 'log loss =', cla_logloss
         result_list.append([j, cla_logloss])
         
         sum1 += sum2
@@ -112,8 +117,8 @@ def log_loss_implement(actual, predicted, eps = 1e-15):
     return logloss, result_list
 
 
-def write_pred_prob(probs):
-    id_f = open('test_set.csv', 'rb')
+def write_pred_prob(probs, filename):
+    id_f = open(filename, 'rb')
     id_r = csv.reader(id_f)
     ids = [row[0] for row in id_r]
     ids = ids[1:]
@@ -176,6 +181,14 @@ def update_set(new_set, prob):
     
     return new_set
 
+
+def cal_feature_weight(V, alg, cla_logloss):
+    V[alg] = []
+    for ll in cla_logloss:
+        V[alg].append(logloss/float(ll[1]))
+    return V
+    
+
 #====================knn
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.grid_search import GridSearchCV
@@ -202,8 +215,7 @@ def lda(Xtrain, ytrain):
 #===================NN
 import os.path
 import sys
-
-#from sklearn.neural_network import MLPClassifier
+from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
 
 def nn(Xtrain, ytrain):
@@ -250,78 +262,167 @@ read and test
 '''
 
 # read file, get training data and testing data
-Xtrain = pd.read_csv('../train_set.csv')
-Xtrain = Xtrain.drop('id', axis=1)
-ytrain = Xtrain.target.values
+X = pd.read_csv('../train_set.csv')
+X = X.drop('id', axis=1)
+y = X.target.values
+y = LabelEncoder().fit_transform(y)
+X = X.drop('target', axis=1)
 
-Xtrain = Xtrain.drop('target', axis=1)
+Xt = pd.read_csv('../test_set.csv')
+Xt = Xt.drop('id', axis=1)
+yt = Xt.target.values
+yt = LabelEncoder().fit_transform(yt)
+Xt = Xt.drop('target', axis=1)
 
+Xtrain = X
+ytrain = y
 
-
-Xtest = pd.read_csv('../test_set.csv')
-Xtest = Xtest.drop('id', axis=1)
-ytest = Xtest.target.values
-Xtest = Xtest.drop('target', axis=1)
+Xtest = Xt
+ytest = yt
 
 
 #first step
 
 print 'First step'
 
+prob, knn_model = knn(Xtrain, ytrain)
+new_set = init_set(prob)
+new_set = update_set(new_set, prob)
+print 'knn'
+print 'saving models ...'
+f = open("knn_model.pkl", "wb")
+pickle.dump(knn_model, f, protocol=2)
+f.close()
 
-mdls=[]
+prob, lda_model = lda(Xtrain, ytrain)
+new_set = update_set(new_set, prob)
+print 'lda'
+print 'saving models ...'
+f = open("lda_model.pkl", "wb")
+pickle.dump(lda_model, f, protocol=2)
+f.close()
+
+prob, nn_model = nn(Xtrain, ytrain)
+new_set = update_set(new_set, prob)
+print 'nn'
+print 'saving models ...'
+f = open("nn_model.pkl", "wb")
+pickle.dump(nn_model, f, protocol=2)
+f.close()
+
+prob, rf_model = rf(Xtrain, ytrain)
+new_set = update_set(new_set, prob)
+print 'rf'
+f = open("rf_model.pkl", "wb")
+pickle.dump(rf_model, f, protocol=2)
+f.close()
+
+prob, svm_model = svm_(Xtrain, ytrain)
+new_set = update_set(new_set, prob)
+print 'svm'
+f = open("svm_model.pkl", "wb")
+pickle.dump(svm_model, f, protocol=2)
+f.close()
+
+prob, xgb_model = xgboost(Xtrain, ytrain)
+#new_set = update_set(new_set, prob)
+print 'xgboost'
+f = open("xgb_model.pkl", "wb")
+pickle.dump(xgb_model, f, protocol=2)
+f.close()
+
+
+'''
+second step
+'''
+'''
+print 'Second step'
 
 print 'loading models ...'
 
-f = open("../models/knn_model.pkl", "rb")
+f = open("knn_model.pkl", "rb")
 knn_model = pickle.load(f)
 f.close()
-
-mdls.append(knn_model)
-
-f = open("../models/lda_model.pkl", "rb")
+print 1
+f = open("lda_model.pkl", "rb")
 lda_model = pickle.load(f)
 f.close()
-
-mdls.append(lda_model)
-
-f = open("../models/nn_model.pkl", "rb")
+print 2
+f = open("nn_model.pkl", "rb")
 nn_model = pickle.load(f)
 f.close()
-
-mdls.append(nn_model)
-
-f = open("../models/svm_model.pkl", "rb")
+print 3
+f = open("rf_model.pkl", "rb")
+rf_model = pickle.load(f)
+f.close()
+print 4
+f = open("svm_model.pkl", "rb")
 svm_model = pickle.load(f)
 f.close()
-
-mdls.append(svm_model)
-
-f = open("../models/xgb_model.pkl", "rb")
+print 5
+f = open("xgb_model.pkl", "rb")
 xgb_model = pickle.load(f)
 f.close()
+print 6
 
-mdls.append(xgb_model)
+# weight for each method
+V = {}
+# probs for each method
 
+prob = knn_model.predict_proba(Xtest)
+logloss, cla_logloss = log_loss_implement(ytest, prob)
+V = cal_feature_weight(V, 'knn', cla_logloss)
 
+prob = lda_model.predict_proba(Xtest)
+logloss, cla_logloss = log_loss_implement(ytest, prob)
+V = cal_feature_weight(V, 'lda', cla_logloss)
 
-preds = []
-for mdl in mdls:
-   preds.append(mdl.predict_proba(Xtest))
+prob = nn_model.predict_proba(Xtest)
+logloss, cla_logloss = log_loss_implement(ytest, prob)
+V = cal_feature_weight(V, 'nn', cla_logloss)
 
-def log_loss_func(weights):
-    fpred = 0
-    for weight, pred in zip(weights, preds):
-            fpred += weight*pred
-    return log_loss(ytest, fpred)
-    
-init_weights = np.rand(len(preds))
+prob = rf_model.predict_proba(Xtest)
+logloss, cla_logloss = log_loss_implement(ytest, prob)
+V = cal_feature_weight(V, 'rf', cla_logloss)
 
-constraints = ({'type':'eq','fun':lambda w: 1-sum(w)})
+prob = svm_model.predict_proba(Xtest)
+logloss, cla_logloss = log_loss_implement(ytest, prob)
+V = cal_feature_weight(V, 'svm', cla_logloss)
 
-bounds = [(0,1)]*len(preds)
+prob = xgb_model.predict_proba(Xtest)
+logloss, cla_logloss = log_loss_implement(ytest, prob)
+V = cal_feature_weight(V, 'xgb', cla_logloss)
 
-res = minimize(log_loss_func, init_weights, method='SLSQP', bounds=bounds, constraints=constraints)
+X = pd.read_csv('test.csv')
+X = X.drop('id', axis=1)
+#y = X.target.values
+#y = LabelEncoder().fit_transform(y)
+#X = X.drop('target', axis=1)
 
-print('Ensamble Score: {best_score}'.format(best_score=res['fun']))
-print('Best Weights: {weights}'.format(weights=res['x']))
+Xtest = X
+ytest = y
+
+P = {}
+prob = knn_model.predict_proba(Xtest)
+P['knn'] = prob
+prob = lda_model.predict_proba(Xtest)
+P['lda'] = prob
+prob = nn_model.predict_proba(Xtest)
+P['nn'] = prob
+prob = rf_model.predict_proba(Xtest)
+P['rf'] = prob
+prob = svm_model.predict_proba(Xtest)
+P['svm'] = prob
+prob = xgb_model.predict_proba(Xtest)
+P['xgb'] = prob
+
+new_set = []
+for i in range(len(prob)):
+    result = [1e-15]*len(prob[0])
+    for alg,weight in V:
+        for j in range(len(weight)):
+            result[j] = weight[j]*prob[i][j]
+    new_set.append(result)
+
+write_pred_prob(new_set, 'test.csv')
+'''
