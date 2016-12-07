@@ -26,7 +26,7 @@ def write_pred_prob(probs):
     
 
     #probs=probs.astype('|S32')
-    print'\n what: ',probs.dtype,probs
+    #print'\n what: ',probs.dtype,probs
     id_f = open('../test_set.csv', 'rb')
     id_r = csv.reader(id_f)
     ids = [row[0] for row in id_r]
