@@ -112,8 +112,19 @@ def log_loss_implement(actual, predicted, eps = 1e-15):
     return logloss, result_list
 
 
-def write_pred_prob(probs):
-    id_f = open('test_set.csv', 'rb')
+def write_pred_prob(probs, filename):
+    ids=pd.read_csv('../test.csv')
+    ids=ids.values
+    ids=ids[:,0]
+    
+    probs=np.insert(probs,0,ids,axis=1)
+    rpy=pd.DataFrame(probs,columns=['id','Class_1','Class_2','Class_3','Class_4','Class_5','Class_6','Class_7','Class_8','Class_9'])
+    ids=ids.astype(int)
+    rpy['id']=ids
+    rpy.to_csv(filename,index=False)
+    
+    '''
+    id_f = open(filename, 'rb')
     id_r = csv.reader(id_f)
     ids = [row[0] for row in id_r]
     ids = ids[1:]
@@ -128,12 +139,14 @@ def write_pred_prob(probs):
     data = []
     for l in range(len(probs)):
         new = [ids[l]]
-        new += probs[l]
-        data.append(new)
+        
+        merge= np.append(new,probs[l])
+        #new += probs[l]
+        data.append(merge)
     writer.writerows(data)
     f.close()
     print 'finish writting <prob.csv>'
-    
+    '''
 def write_pred_logloss(logloss_list):
     f = open('logloss.csv', 'wb')
     writer = csv.writer(f)
@@ -256,6 +269,9 @@ ytrain = Xtrain.target.values
 
 Xtrain = Xtrain.drop('target', axis=1)
 
+Xrealtest = pd.read_csv('../test.csv')
+Xrealtest = Xrealtest.drop('id', axis=1)
+
 
 
 Xtest = pd.read_csv('../test_set.csv')
@@ -273,49 +289,57 @@ mdls=[]
 
 print 'loading models ...'
 
-f = open("../models/knn_model.pkl", "rb")
+f = open("knn_model.pkl", "rb")
 knn_model = pickle.load(f)
 f.close()
 
 mdls.append(knn_model)
 
-f = open("../models/lda_model.pkl", "rb")
+f = open("lda_model.pkl", "rb")
 lda_model = pickle.load(f)
 f.close()
 
 mdls.append(lda_model)
 
-f = open("../models/nn_model.pkl", "rb")
+f = open("nn_model.pkl", "rb")
 nn_model = pickle.load(f)
 f.close()
 
 mdls.append(nn_model)
 
-f = open("../models/svm_model.pkl", "rb")
+f = open("svm_model.pkl", "rb")
 svm_model = pickle.load(f)
 f.close()
 
 mdls.append(svm_model)
 
-f = open("../models/xgb_model.pkl", "rb")
+f = open("xgb_model.pkl", "rb")
 xgb_model = pickle.load(f)
 f.close()
 
 mdls.append(xgb_model)
 
 
+f = open("rf_model.pkl", "rb")
+rf_model = pickle.load(f)
+f.close()
+
+mdls.append(rf_model)
+
 
 preds = []
+real_tests = []
 for mdl in mdls:
    preds.append(mdl.predict_proba(Xtest))
-
+   real_tests.append(mdl.predict_proba(Xrealtest))
+   
 def log_loss_func(weights):
     fpred = 0
     for weight, pred in zip(weights, preds):
             fpred += weight*pred
     return log_loss(ytest, fpred)
     
-init_weights = np.rand(len(preds))
+init_weights = np.random.rand(len(preds))
 
 constraints = ({'type':'eq','fun':lambda w: 1-sum(w)})
 
@@ -325,3 +349,8 @@ res = minimize(log_loss_func, init_weights, method='SLSQP', bounds=bounds, const
 
 print('Ensamble Score: {best_score}'.format(best_score=res['fun']))
 print('Best Weights: {weights}'.format(weights=res['x']))
+
+results=res['x']*np.array(real_tests).T
+
+results = np.sum(results,axis=2).T
+write_pred_prob(results, 'myresult.csv')
