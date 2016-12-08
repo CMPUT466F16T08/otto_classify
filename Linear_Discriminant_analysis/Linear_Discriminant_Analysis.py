@@ -103,15 +103,21 @@ ytest=yt
 
 
 def Draw(X_r):
-
+  
 	colors=['blue','green','red','cyan','magenta','yellow','black','orange','purple']
 	index= [0,1,2,3,4,5,6,7,8]
 	targetName=['Class1','Class2','Class3','Class4','Class5','Class6','Class7','Class8','Class9']
 	lw = 0.1
+        fig, (ax1,ax2) = plt.subplots(nrows=1, ncols=2, figsize=(20,10))
 	for color,i,target_name in zip(colors,index,targetName):
-		plt.scatter(X_r[y==i,0],X_r[y==i,1],color=color,alpha=0.8,lw=lw,label=target_name,marker='*')
-	plt.legend(loc='best', shadow=False, scatterpoints=1)
-	plt.title('LDA Graph')
+		ax1.scatter(X_r[y==i,0],X_r[y==i,1],color=color,alpha=0.8,lw=lw,label=target_name,marker='*')
+                ax2.hist(X_r[y==i, 0],color=color,alpha=0.5,label=target_name)
+	ax1.legend(loc='best', shadow=False, scatterpoints=1)
+	ax1.set_title('LDA Scatter Graph')
+        ax2.legend(loc='best', shadow=False, scatterpoints=1)
+	ax2.set_title('LDA Histogram')
+        ax2.set_ylabel('count')
+        
 	plt.show()
         
 
